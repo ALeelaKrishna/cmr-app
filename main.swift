@@ -159,4 +159,3 @@ do {
     // Unable to connect
 	print("MongoDB is not available on the given host and port")
 }
-
