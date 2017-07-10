@@ -9,7 +9,6 @@ do {
 	let database = server["food-court"]
 	let customer = database["customer"]
 	let shop = database["shop"]
-	//typealias mc = MongoKitten.Collection
 	print("Yes!!! you are connected to the remote database")
 	
 	var x = true
@@ -61,15 +60,20 @@ do {
 						}
 						else{
 							print("\nEnter Amount:")
-							var amount1 = Int(readLine()!)
+							//price ===> price of the item
+							var price = Int(readLine()!)
 
-							if (q-amount1!)<0{
-								print("\nSorry your balance is not sufficient to buy this product\n")
+							if (q-price!)<0{
+								print("\nSorry your balance is not sufficient to purchase this item\n")
 							}
 							else{
 								print("\nEnter shopID:")
 								var shopID = String(readLine()!)	
-								try customer.update(["uID":uID], to: ["$set": ["uAmount": q-amount1!]])
+								
+								//check whether that shopID exists of not??
+
+								try customer.update(["uID":uID], to: ["$set": ["uAmount": q-price!]])
+								var cBalance = q-price!
 								
 								//Update the amount of shop
 								
@@ -79,8 +83,9 @@ do {
 									var amount2 = x["shopAmount"]
 									q = Int(amount2)!	
 								}
-								let final_amount = q + amount1!
-								try shop.update(["shopID":shopID],to:["$set": ["shopAmount": final_amount]])	
+								let final_amount = q + price!
+								try shop.update(["shopID":shopID],to:["$set": ["shopAmount": final_amount]])
+								print("\nYour balance is \(cBalance) Rs.\n")	
 							}
 
 							
@@ -103,6 +108,7 @@ do {
 						}
 						let final_amount = q + amount!
 						try customer.update(["uID":uID], to: ["$set": ["uAmount": final_amount]])
+						print("\nYour account has been recharged with amount \(amount!) Rs.\nYour balance is \(final_amount) Rs.!!\n")
 //delete a user
 				case 4:
 						print("\n\t\tDELETE")
@@ -132,14 +138,12 @@ do {
 						// for userDocument in resultUsers {
 						//		print(userDocument,"\n")
 						// }
-				default:print("\nYou have chosen nothing\n")
-				
+//default case				
+				default:print("\nYou have chosen nothing.\nPlease enter a valid input.\n")				
 			}
 
 
 		}
-		
-		
 
 		print("Do you want to continue y/n")
 		
