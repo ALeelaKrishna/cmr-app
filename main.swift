@@ -9,13 +9,14 @@ do {
 	let database = server["food-court"]
 	let customer = database["customer"]
 	let shop = database["shop"]
+	let transaction = database["transaction"]
 	print("Yes!!! you are connected to the remote database")
 	
 	var x = true
 
 	while(x){
 
-		print("\n\t\t\tSELECT AN OPTION\n1.Create a new user\n2.Purchase any item\n3.Recharge a card\n4.Delete a user\n5.Create a new shop\n")
+		print("\n\t\t\tSELECT AN OPTION\n1.Create a new user\n2.Purchase any item\n3.Recharge a card\n4.Return your card\n5.Create a new shop\n6.Want a receipt\n")
 		
 		var opt = Int(readLine()!)
 		//Unwrapping opt
@@ -85,7 +86,8 @@ do {
 								}
 								let final_amount = q + price!
 								try shop.update(["shopID":shopID],to:["$set": ["shopAmount": final_amount]])
-								print("\nYour balance is \(cBalance) Rs.\n")	
+								print("\nYour balance is \(cBalance) Rs.\n")
+								try transaction.insert(["uID":uID,"shopID":shopID,"amount":price!,"time":Date()])
 							}
 
 							
@@ -126,18 +128,48 @@ do {
 						var userDocument: Document = [
 						"shopID": shopID,
 						"shopAmount": 0,
-						]
+						]				
+//receipt		
+				case 6:
+						print("\n1.receipt for user\n2.receipt for shop\n")
+						var opt = Int(readLine()!)
+						//Unwrapping opt
 
-						//Insert a new customer
+						if let opt = opt{
 
-						try shop.insert(userDocument)
+						switch opt {
+							case 1:
+									print("\nEnter userID:")
+									var uID = String(readLine()!)
 
-						//Display the list of all customers
+									let resultUsers = try transaction.find(["uID":uID])
+									var count = 1
+									for userDocument in resultUsers {
+											if(count==1){
+												print("UserID:\(uID!)\n")
+												print("S.No\tShop\tAmount\t\tTime\n")
+											}
+											print("\(count)\t\(userDocument["shopID"]!)\t\(userDocument["amount"]!)\t\(userDocument["time"]!)\n")
+									count = count + 1
+									}
+							case 2:
+									print("\nEnter shopID:")
+									var shopID = String(readLine()!)
 
-						// let resultUsers = try customer.find()
-						// for userDocument in resultUsers {
-						//		print(userDocument,"\n")
-						// }
+									let resultUsers = try transaction.find(["shopID":shopID])
+									var count = 1
+									for userDocument in resultUsers {
+											if(count==1){
+												print("ShopID:\(shopID!)\n")
+												print("S.No\tCustomer\tAmount\t\tTime\n")
+											}
+											print("\(count)\t\(userDocument["uID"]!)\t\t\(userDocument["amount"]!)\t\(userDocument["time"]!)\n")
+									count = count + 1
+									}
+							default:print("\nYou have chosen nothing.\nPlease enter a valid input.\n")				
+						}
+					}				
+
 //default case				
 				default:print("\nYou have chosen nothing.\nPlease enter a valid input.\n")				
 			}
@@ -145,7 +177,7 @@ do {
 
 		}
 
-		print("Do you want to continue y/n")
+		print("\nDo you want to continue y/n")
 		
 		var option = readLine()
 		if let option = option {}
